@@ -4,10 +4,12 @@ const { ethers, run } = pkg;
 async function main() {
   console.log("🚀 Deploying contracts to Arbitrum Sepolia...");
 
-  const [deployer, seller, buyer] = await ethers.getSigners();
+  const [deployer, buyer] = await ethers.getSigners();
 
-  console.log("Deployer:", deployer.address);
-  console.log("Seller:", seller.address);
+  // O deployer também é o seller
+  const seller = deployer;
+
+  console.log("Deployer/Seller:", seller.address);
   console.log("Buyer:", buyer.address);
 
   // === 1️⃣ Deploy CarNFT ===
@@ -41,7 +43,7 @@ async function main() {
       20000,
       "RENAVAM123456"
     );
-  const receipt = await txMint.wait(1); // espera confirmação da transação
+  const receipt = await txMint.wait(1);
   console.log("✅ Mint transaction mined:", receipt.hash);
 
   // Captura o tokenId do evento CarMinted corretamente
@@ -87,7 +89,6 @@ async function main() {
     }
   };
 
-  // Aguarda entre as verificações (útil para evitar rate limits)
   const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 
   await verify("CarNFT", carNftAddress, ["CarNFT", "CARNFT"]);

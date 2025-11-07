@@ -82,7 +82,7 @@ async function main() {
   };
 
   await verify("CarNFT", carNftAddress, ["CarNFT", "CARNFT"]);
-  await verify("MockUSDT", usdtAddress, [deployer.address, users]);
+  await verify("MockUSDT", usdtAddress, [deployer.address, buyer.address]);
   await verify("VehicleSale", saleAddress, [
     seller.address,
     buyer.address,

@@ -13,6 +13,7 @@ async function main() {
   // === 1️⃣ Deploy CarNFT ===
   const CarNFT = await ethers.getContractFactory("CarNFT");
   const carNft = await CarNFT.deploy("CarNFT", "CARNFT");
+  console.log("⏳ Waiting for CarNFT deployment...");
   await carNft.waitForDeployment();
   const carNftAddress = await carNft.getAddress();
   console.log("✅ CarNFT deployed at:", carNftAddress);
@@ -21,11 +22,13 @@ async function main() {
   const MockUSDT = await ethers.getContractFactory("usdtTest");
   const users = [seller.address, buyer.address];
   const mockUsdt = await MockUSDT.deploy(deployer.address, users);
+  console.log("⏳ Waiting for MockUSDT deployment...");
   await mockUsdt.waitForDeployment();
   const usdtAddress = await mockUsdt.getAddress();
   console.log("✅ MockUSDT deployed at:", usdtAddress);
 
   // === 3️⃣ Mint a test NFT for the seller ===
+  console.log("⏳ Minting test NFT for the seller...");
   const txMint = await carNft
     .connect(seller)
     .mintCar(
@@ -38,7 +41,8 @@ async function main() {
       20000,
       "RENAVAM123456"
     );
-  const receipt = await txMint.wait();
+  const receipt = await txMint.wait(1); // espera confirmação da transação
+  console.log("✅ Mint transaction mined:", receipt.hash);
 
   // Captura o tokenId do evento CarMinted corretamente
   const iface = carNft.interface;
@@ -62,6 +66,7 @@ async function main() {
     totalInstallments,
     installmentAmount
   );
+  console.log("⏳ Waiting for VehicleSale deployment...");
   await sale.waitForDeployment();
   const saleAddress = await sale.getAddress();
   console.log("✅ VehicleSale deployed at:", saleAddress);
@@ -71,6 +76,7 @@ async function main() {
 
   const verify = async (name, address, args) => {
     try {
+      console.log(`⏳ Verifying ${name}...`);
       await run("verify:verify", {
         address,
         constructorArguments: args,
@@ -81,8 +87,15 @@ async function main() {
     }
   };
 
+  // Aguarda entre as verificações (útil para evitar rate limits)
+  const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
+
   await verify("CarNFT", carNftAddress, ["CarNFT", "CARNFT"]);
-  await verify("MockUSDT", usdtAddress, [deployer.address, buyer.address]);
+  await delay(5000);
+
+  await verify("MockUSDT", usdtAddress, [deployer.address, users]);
+  await delay(5000);
+
   await verify("VehicleSale", saleAddress, [
     seller.address,
     buyer.address,

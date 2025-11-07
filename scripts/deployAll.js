@@ -57,7 +57,7 @@ async function main() {
 
   // === 4️⃣ Deploy VehicleSale ===
   const VehicleSale = await ethers.getContractFactory("VehicleSale");
-  const totalInstallments = 3;
+  const totalInstallments = 12;
   const installmentAmount = ethers.parseUnits("10", 6); // 10 USDT
   const sale = await VehicleSale.deploy(
     seller.address,
